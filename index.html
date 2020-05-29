@@ -460,8 +460,9 @@
                     let reader = new FileReader();
                     reader.readAsText(file, "UTF-8");
                     reader.onload =  evt => {
-                        let nativeObject = yaml.parse(evt.target.result);
-                        console.log(nativeObject)
+                        const yaml = require('js-yaml');
+                        const doc = yaml.safeLoad(evt.target.result);
+                        console.log(doc)
                         // https://stackoverflow.com/questions/60772975/parse-yaml-data-to-browser-using-angularjs
                         // const inputs = evt.target.result.match(/(?<=inputs:)[\s\S]*(?=arguments)/)[0].toString()
                         // this is the regex version
