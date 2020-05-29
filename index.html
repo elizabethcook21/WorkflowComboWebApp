@@ -11,6 +11,7 @@
 <!--Production version of Vue--><script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
 <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/3.13.1/js-yaml.min.js"></script>-->
 <script src="https://raw.githubusercontent.com/nodeca/js-yaml/master/dist/js-yaml.js"></script>
+<script src="https://github.com/jeremyfa/yaml.js/blob/develop/dist/yaml.js"></script>
 
 <!--Here we define any custom CSS attributes that we want to be used.-->
 <style>
@@ -454,11 +455,14 @@
                     let file = this.$refs.myFile.files[i];
                     this.list_of_names.push(file.name)
                     this.text1 = this.text1 + file.name // this line is for debugging
-                    
+
                     if(!file) return;
                     let reader = new FileReader();
                     reader.readAsText(file, "UTF-8");
                     reader.onload =  evt => {
+                        let nativeObject = yaml.parse(evt.target.result);
+                        console.log(nativeObject)
+                        // https://stackoverflow.com/questions/60772975/parse-yaml-data-to-browser-using-angularjs
                         // const inputs = evt.target.result.match(/(?<=inputs:)[\s\S]*(?=arguments)/)[0].toString()
                         // this is the regex version
                         // let separatedInputs = this.separateInputs(inputs)
