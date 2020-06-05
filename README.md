@@ -9,6 +9,7 @@ This is the web application version of the WorkflowCombo command line tool.
 # History
 Please delete this section later, I just wanted a place to document the transition from using regex to using a package called "js-yaml" that will read and parse the incoming CWL files. 
 This is the regex code I wrote before I switched. 
+
             selectedFile: function() {
                 console.log('selected a file or multiple files');
                 console.log(this.$refs.myFile.files[0]);
@@ -16,8 +17,6 @@ This is the regex code I wrote before I switched.
                 for(i=0; i < this.$refs.myFile.files.length; i++){
                     let file = this.$refs.myFile.files[i];
                     this.list_of_names.push(file.name)
-                    this.text1 = this.text1 + file.name // this line is for debugging
-
                     if(!file) return;
                     let reader = new FileReader();
                     reader.readAsText(file, "UTF-8");
