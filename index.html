@@ -8,10 +8,12 @@
 
 <!--Here we import any JavaScript libraries that we need.-->
 <!--Dev version of Vue<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>-->
-<!--Production version of Vue--><script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
 <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/3.13.1/js-yaml.min.js"></script>-->
-<script src="https://raw.githubusercontent.com/nodeca/js-yaml/master/dist/js-yaml.js"></script>
-<script src="https://github.com/jeremyfa/yaml.js/blob/develop/dist/yaml.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/3.13.1/js-yaml.min.js"></script>
+<!--<script src="https://raw.githubusercontent.com/nodeca/js-yaml/master/dist/js-yaml.js"></script>-->
+<script src="https://raw.githubusercontent.com/jeremyfa/yaml.js/develop/dist/yaml.js" type="text/javascript"></script>
+<!--Production version of Vue--><script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
+
 
 <!--Here we define any custom CSS attributes that we want to be used.-->
 <style>
@@ -313,9 +315,9 @@
             text:'',
             text1:'',
             list_of_names: [],
-            uploaded_CWL_Files: [],
-            CLT_Inputs: new Map(),
+            CLT_Inputs: [],
             CLT_Outputs: [],
+
             // Dr. Piccolo's data
             input_errors: [],
             auxiliary_errors: [],
@@ -341,7 +343,7 @@
         // Computed attributes get recalculated every time the connected data changes.
         // In this app, we also perform input validation before returning cwl and job documents.
         computed: {
-            cwl: function() {
+          /*  cwl: function() {
                 this.download_cwl_errors = [];
                 if (this.tool_id.trim() == "")
                     this.download_cwl_errors.push("Please specify a tool identifier.");
@@ -438,15 +440,11 @@
             job_file_name: function() { return `${this.tool_id}_job.yml`; },
             example_command: function() {
                 return `cwltool ${this.cwl_file_name} ${this.job_file_name}`;
-            }
-            // encoded_cwl: function() {
-            //     return "data:text/plain;charset=utf-8," + encodeURIComponent(this.cwl);
-            // }
+            }*/
         },
 
         // These are functions to make the logic a bit more modular.
         methods: {
-            // The following method (SelectedFile) comes from https://www.raymondcamden.com/2019/05/21/reading-client-side-files-for-validation-with-vuejs
             selectedFile: function() {
                 console.log('selected a file or multiple files');
                 console.log(this.$refs.myFile.files[0]);
@@ -454,61 +452,25 @@
                 for(i=0; i < this.$refs.myFile.files.length; i++){
                     let file = this.$refs.myFile.files[i];
                     this.list_of_names.push(file.name)
-                    this.text1 = this.text1 + file.name // this line is for debugging
-
+                    this.text = this.text + file.name
                     if(!file) return;
                     let reader = new FileReader();
                     reader.readAsText(file, "UTF-8");
                     reader.onload =  evt => {
-                        const yaml = require('js-yaml');
-                        const doc = yaml.safeLoad(evt.target.result);
-                        console.log(doc)
-                        // https://stackoverflow.com/questions/60772975/parse-yaml-data-to-browser-using-angularjs
-                        // const inputs = evt.target.result.match(/(?<=inputs:)[\s\S]*(?=arguments)/)[0].toString()
-                        // this is the regex version
-                        // let separatedInputs = this.separateInputs(inputs)
-                        // this.CLT_Inputs.set(file.name, separatedInputs)
-
-                        const outputs = evt.target.result.match(/(?<=outputs:)[\s\S]*(?=stdout)/)[0].toString();
+                        let parsedFile = jsyaml.safeLoadAll(evt.target.result);
+                        this.CLT_Outputs[file.name] = parsedFile[0]['outputs']
+                        this.CLT_Inputs[file.name] = parsedFile[0]['inputs']
                     }
                     reader.onerror = evt => {
                         console.error(evt);
                     }
                 }
-                this.text1 = this.uploaded_CWL_FileNames.toString()
             },
-            separateInputs: function(newInput){
-                let inputName = "";
-                let inputType = "";
-                let inputDoc = "";
-                let toolInputMap = new Map()
-
-                while (newInput.length !== 0) {
-                    // find name and get rid of it
-                    inputName = newInput.match(/\w*(?=:)/)[0].toString()
-                    newInput = newInput.replace(/\w*(:)/, "")
-                    // find type and get rid of it
-                    inputType = newInput.match(/(?<=type:\s)\w*/)[0].toString()
-                    newInput = newInput.replace(/(type:\s)\w*/, "")
-                    // find doc and get rid of it
-                    inputDoc = newInput.match(/(?<=doc:)[\s\S]*?((?=\w*:)|$)/)[0].toString()
-                    newInput = newInput.replace(/(doc:)[\s\S]*?((?=\w*:)|$)/, "")
-                    let dictMap = new Map([
-                        ['name', inputName],['type', inputType],['doc', inputDoc]
-                    ])
-                    toolInputMap.set(inputName, dictMap)
-
-                    try {
-                        newInput.match(/\w*(?=:)/)[0].toString()
-                    } catch (error) {
-                        break;
-                    }
-
-                }
-                return toolInputMap;
-            },
-            // Dr. Piccolo's functions are below:
-            addInput: function () {
+            arrangeInputsAndOutputs: function(){
+                // this function is to automatically match up the inputs and outputs that we have just parsed through.
+                console.log('testing')
+            }
+          /*  addInput: function () {
                 this.input_errors = [];
                 if (/[^a-zA-Z_0-9]+/.test(this.newInputName))
                     this.input_errors.push("Input names must only contain letters, numbers, and underscores.");
@@ -674,7 +636,7 @@
                 document.body.appendChild(element);
                 element.click();
                 document.body.removeChild(element);
-            }
+            }*/
         }
     });
 </script>
